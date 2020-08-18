@@ -1,7 +1,7 @@
 {
-    "name": "laravel/laravel",
+    "name": "msafadi/clc-laravel-072020",
     "type": "project",
-    "description": "The Laravel Framework.",
+    "description": "Store App",
     "keywords": [
         "framework",
         "laravel"
