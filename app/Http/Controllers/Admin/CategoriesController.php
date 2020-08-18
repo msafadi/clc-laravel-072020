@@ -28,13 +28,10 @@ class CategoriesController extends Controller
         ]);
     }
 
-    public function edit($id)
+    public function edit(Category $category)
     {
-        $category = Category::find($id);
+        //$category = Category::findOrFail($id);
 
-        if (!$category) {
-            return $id;
-        }
         $parents = Category::all();/* Category::where('id', '<>', $id)
             ->where(function($query) use ($id) {
                 $query->where('parent_id', '<>', $id)

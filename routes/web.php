@@ -32,16 +32,22 @@ Route::group([
 });
 */
 
-Route::namespace('Admin')
-    ->prefix('/admin/categories')
-    ->as('admin.categories.')
+Route::prefix('admin')
+    ->namespace('Admin')
+    ->as('admin.')
     ->group(function() {
-        Route::get('/', 'CategoriesController@index')->name('index');
-        Route::get('/create', 'CategoriesController@create')->name('create');
-        Route::post('/', 'CategoriesController@store')->name('store');
-        Route::get('/{id}', 'CategoriesController@edit')->name('edit')->where('id', '\d+');
-        Route::put('/{id}', 'CategoriesController@update')->name('update')->where('id', '\d+');
-        Route::delete('/{id}', 'CategoriesController@delete')->name('delete')->where('id', '\d+');
+        Route::prefix('categories')
+            ->as('categories.')
+            ->group(function() {
+                Route::get('/', 'CategoriesController@index')->name('index');
+                Route::get('/create', 'CategoriesController@create')->name('create');
+                Route::post('/', 'CategoriesController@store')->name('store');
+                Route::get('/{category}', 'CategoriesController@edit')->name('edit')->where('id', '\d+');
+                Route::put('/{id}', 'CategoriesController@update')->name('update')->where('id', '\d+');
+                Route::delete('/{id}', 'CategoriesController@delete')->name('delete')->where('id', '\d+');
+            });
+
+        Route::resource('products', 'ProductsController');
     });
 
 Route::get('/storage/{file}', function($file) {
