@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Category;
 use App\Http\Controllers\Controller;
 use App\Product;
 use Illuminate\Http\Request;
@@ -16,11 +17,15 @@ class ProductsController extends Controller
      */
     public function index()
     {
-        $products = Product::join('categories', 'products.category_id', '=', 'categories.id')
+        /*$products = Product::join('categories', 'products.category_id', '=', 'categories.id')
             ->select([
                 'products.*',
                 'categories.name as category_name',
-            ])->paginate(1);
+            ])->paginate(1);*/
+        
+        $products = Product::with('category')->paginate();
+        // SELECT * FROM products
+        // SELECT * FROM categories WHERE id IN (1, 2, 3)
 
         return view('admin.products.index', [
             'products' => $products,
@@ -64,6 +69,10 @@ class ProductsController extends Controller
         $data['image'] = $image;
 
         $product = Product::create($data);
+
+        //$category = Category::findOrFail($request->category_id);
+        //$category->products()->create($data);
+
         $message = sprintf('Product %s created', $product->name);
         return redirect()->route('admin.products.index')
             ->with('success', $message);

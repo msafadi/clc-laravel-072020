@@ -27,7 +27,7 @@
             <tr>
                 <td><img height="50" src="{{ asset('storage/' . $model->image) }}" alt=""></td>
                 <td><a href="{{ route('admin.products.edit', [$model->id]) }}">{{ $model->name }}</a></td>
-                <td>{{ $model->category_name }}</td>
+                <td>{{ $model->category->name }}</td>
                 <td>{{ $model->price }}</td>
                 <td>{{ $model->quantity }}</td>
                 <td>{{ $model->created_at }}</td>

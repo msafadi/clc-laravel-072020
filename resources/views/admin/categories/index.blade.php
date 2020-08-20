@@ -30,8 +30,8 @@
         @foreach($categories as $model)
             <tr>
                 <td><a href="{{ route('admin.categories.edit', [$model->id]) }}">{{ $model->name }}</a></td>
-                <td>{{ $model->parent_name }}</td>
-                <td>0</td>
+                <td>{{ $model->parent->name }}</td>
+                <td>{{ $model->products_count }}</td>
                 <td>{{ $model->created_at }}</td>
                 <td>
                 <form method="post" action="{{ route('admin.categories.delete', [$model->id]) }}">

@@ -45,6 +45,7 @@ Route::prefix('admin')
                 Route::get('/{category}', 'CategoriesController@edit')->name('edit')->where('id', '\d+');
                 Route::put('/{id}', 'CategoriesController@update')->name('update')->where('id', '\d+');
                 Route::delete('/{id}', 'CategoriesController@delete')->name('delete')->where('id', '\d+');
+                Route::get('/{category}/products', 'CategoriesController@products')->name('products');
             });
 
         Route::resource('products', 'ProductsController');

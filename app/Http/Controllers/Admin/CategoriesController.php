@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Category;
+use App\Product;
 use App\Rules\CheckParent;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -17,12 +19,26 @@ class CategoriesController extends Controller
     {
         session()->forget('message');
         
-        $categories = Category::leftJoin('categories as parents', 'parents.id', '=', 'categories.parent_id')
+        /*$categories = Category::leftJoin('categories as parents', 'parents.id', '=', 'categories.parent_id')
             ->select([
                 'categories.*',
                 'parents.name as parent_name',
             ])
-            ->get();
+            ->get();*/
+
+        $categories = Category::withCount('products')->paginate();
+        // Select categories.id, categories.name, COUNT(products.id) FROM categories
+        //    INNER JOIN products ON ..
+        //    GROUP BY categories.id, categories.name
+
+        //$categories = Category::doesntHave('products')->withCount('products')->get();
+
+        //$categories = Category::has('products', '>=', 2)->withCount('products')->get();
+        
+        /*$categories = Category::whereHas('products', function($query) {
+            $query->where('price', '>', 20);
+        })->get();*/
+
         return view('admin.categories.index', [
             'categories' => $categories,
         ]);
@@ -116,11 +132,19 @@ class CategoriesController extends Controller
     public function delete($id)
     {
         $category = Category::findOrFail($id);
-        $category->delete();
-        // DELETE FROM categories WHERE id = ?
-        Storage::disk('public')->delete($category->image);
-
-        
+        try {
+            $category->delete();
+            // DELETE FROM categories WHERE id = ?
+            Storage::disk('public')->delete($category->image);
+        } catch (QueryException $e) {
+            if (strpos($e->getMessage(), '1451') !== false) {
+                $message = 'Cannot delete a parent item';
+            } else {
+                $message = $e->getMessage();
+            }
+            return redirect()->route('admin.categories.index')
+                ->with('error', $message);
+        }
 
         $message = sprintf('Category "%s" deleted!', $category->name);
 
@@ -155,5 +179,15 @@ class CategoriesController extends Controller
             $mime = $image->getType();
             return $image->store('images', 'public');
         }
+    }
+
+    public function products(Category $category)
+    {
+        //return $category->products()->where('price', '>', 10)->get();
+        //Product::where('category_id', $category->id)->where('price', '>', 10)->get();
+
+        return view('admin.categories.products', [
+            'category' => $category,
+        ]);
     }
 }
