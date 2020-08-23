@@ -35,7 +35,7 @@
     <div class="form-group row">
         <label for="description" class="col-sm-2 col-form-label">Description</label>
         <div class="col-sm-10">
-            <textarea class="form-control" name="description" id="description">{{ old('description', $product->description) }}</textarea>
+            <textarea class="form-control" name="description" id="description">{{ old('description', $product->desc->description) }}</textarea>
             @error('description')
             <p class="text-danger">{{ $message }}</p>
             @enderror
@@ -68,6 +68,17 @@
         <div class="col-sm-10">
             <input type="number" value="{{ old('quantity', $product->quantity) }}" class="form-control @error('quantity') is-invalid @enderror" name="quantity" id="quantity">
             @error('quantity')
+            <p class="text-danger">{{ $message }}</p>
+            @enderror
+        </div>
+    </div>
+    <!-- HTML Comment -->
+    {{-- Blade Comment --}}
+    <div class="form-group row">
+        <label for="tags" class="col-sm-2 col-form-label">Tags</label>
+        <div class="col-sm-10">
+            <input type="text" value="{{ old('tags', $tags ?? '') }}" class="form-control @error('tags') is-invalid @enderror" name="tags" id="tags">
+            @error('tags')
             <p class="text-danger">{{ $message }}</p>
             @enderror
         </div>

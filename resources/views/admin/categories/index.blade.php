@@ -31,7 +31,7 @@
             <tr>
                 <td><a href="{{ route('admin.categories.edit', [$model->id]) }}">{{ $model->name }}</a></td>
                 <td>{{ $model->parent->name }}</td>
-                <td>{{ $model->products_count }}</td>
+                <td><a href="{{ route('admin.categories.products', [$model->id]) }}">{{ $model->products_count }}</a></td>
                 <td>{{ $model->created_at }}</td>
                 <td>
                 <form method="post" action="{{ route('admin.categories.delete', [$model->id]) }}">
