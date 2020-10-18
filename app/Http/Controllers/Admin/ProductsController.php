@@ -8,12 +8,18 @@ use App\Product;
 use App\ProductDescription;
 use App\Tag;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 class ProductsController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -27,7 +33,14 @@ class ProductsController extends Controller
                 'categories.name as category_name',
             ])->paginate(1);*/
         
-        $products = Product::with('category')->paginate();
+        //$products = Product::with('category')->withImages()->price(20)->paginate();
+
+        $request = request();
+        $products = Product::with('category')
+            ->filter($request->query())
+            ->paginate();
+
+        //$products = Product::with('category')->withoutGlobalScope('quantity')->paginate();
         // SELECT * FROM products
         // SELECT * FROM categories WHERE id IN (1, 2, 3)
 
@@ -37,6 +50,7 @@ class ProductsController extends Controller
 
         return view('admin.products.index', [
             'products' => $products,
+            'filters' => $request->query(),
         ]);
     }
 
@@ -60,6 +74,9 @@ class ProductsController extends Controller
      */
     public function store(Request $request)
     {
+        var_dump(Auth::user());
+        exit;
+
         $request->validate([
             'name' => 'required|max:255',
             'price' => 'numeric',
@@ -186,9 +203,13 @@ class ProductsController extends Controller
      */
     public function destroy($id)
     {
-        $product = Product::findOrFail($id);
-        $product->delete();
-        Storage::disk('public')->delete($product->image);
+        $product = Product::withTrashed()->findOrFail($id);
+        if ($product->trashed()) {
+            $product->forceDelete();
+            //Storage::disk('public')->delete($product->image);
+        } else {
+            $product->delete();
+        }
 
         $message = sprintf('Product %s deleted', $product->name);
         return redirect()->route('admin.products.index')
@@ -233,5 +254,22 @@ class ProductsController extends Controller
                 ]);
             }
         }*/
+    }
+
+    public function trash()
+    {
+        return view('admin.products.index', [
+            'products' => Product::onlyTrashed()->paginate()
+        ]);
+    }
+
+    public function restore(Request $request, $id)
+    {
+        $product = Product::onlyTrashed()->findOrFail($id);
+        $product->restore();
+
+        $message = sprintf('Product %s restored', $product->name);
+        return redirect()->route('admin.products.index')
+            ->with('success', $message);
     }
 }

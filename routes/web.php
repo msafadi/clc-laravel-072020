@@ -33,6 +33,7 @@ Route::group([
 */
 
 Route::prefix('admin')
+    ->middleware(['auth', 'verified'])
     ->namespace('Admin')
     ->as('admin.')
     ->group(function() {
@@ -48,6 +49,9 @@ Route::prefix('admin')
                 Route::get('/{category}/products', 'CategoriesController@products')->name('products');
             });
 
+        Route::get('products/trash', 'ProductsController@trash')->name('products.trash');
+        //Route::delete('products/{id}/force-delete', 'ProductsController@forceDelete')->name('products.forceDelete');
+        Route::put('products/{id}/restore', 'ProductsController@restore')->name('products.restore');
         Route::resource('products', 'ProductsController');
     });
 
@@ -59,3 +63,9 @@ Route::get('/storage/{file}', function($file) {
 
 
 
+
+Auth::routes([
+    'verify' => true,
+]);
+
+Route::get('/home', 'HomeController@index')->name('home');

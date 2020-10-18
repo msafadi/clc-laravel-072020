@@ -15,6 +15,11 @@ use Throwable;
 
 class CategoriesController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index()
     {
         session()->forget('message');
