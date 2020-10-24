@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AuthType;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,9 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', 'HomeController@index')->name('home');
 /*
 Route::group([
     'prefix' => 'admin/categories',
@@ -33,10 +32,12 @@ Route::group([
 */
 
 Route::prefix('admin')
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth', 'auth.type:admin,super-admin,user'])
     ->namespace('Admin')
     ->as('admin.')
     ->group(function() {
+        Route::resource('roles', 'RolesController');
+
         Route::prefix('categories')
             ->as('categories.')
             ->group(function() {
@@ -68,4 +69,20 @@ Auth::routes([
     'verify' => true,
 ]);
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/logout', 'Auth\LoginController@weblogout')->name('user-logout');
+
+Route::get('admin/login', 'Admin\Auth\LoginController@showLoginForm');
+Route::post('admin/login', 'Admin\Auth\LoginController@login');
+Route::get('admin/password/reset', 'Admin\Auth\ForgotPasswordController@showSendEmailForm');
+Route::post('admin/password/reset', 'Admin\Auth\ForgotPasswordController@sendEmail');
+
+//Route::get('/home', 'HomeController@index')->name('home');
+
+Route::middleware('auth')->group(function() {
+    Route::get('cart', 'CartController@index')->name('cart.index');
+    Route::post('cart', 'CartController@store')->name('cart.store');
+    Route::delete('cart/{product_id}', 'CartController@destroy')->name('cart.destroy');
+
+    Route::get('orders', 'OrdersController@index')->name('orders');
+    Route::get('checkout', 'OrdersController@checkout')->name('checkout');
+});

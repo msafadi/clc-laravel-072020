@@ -10,6 +10,7 @@ use App\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
 
@@ -27,6 +28,8 @@ class ProductsController extends Controller
      */
     public function index()
     {
+        $this->authorize('view-any', Product::class);
+
         /*$products = Product::join('categories', 'products.category_id', '=', 'categories.id')
             ->select([
                 'products.*',
@@ -61,6 +64,12 @@ class ProductsController extends Controller
      */
     public function create()
     {
+        /*if (Gate::denies('create-product')) {
+            abort(403, 'You donnot have permission to create product');
+        }*/
+        //Gate::authorize('create-product');
+        $this->authorize('create', Product::class);
+
         return view('admin.products.create', [
             'product' => new Product(),
         ]);
@@ -74,8 +83,7 @@ class ProductsController extends Controller
      */
     public function store(Request $request)
     {
-        var_dump(Auth::user());
-        exit;
+        $this->authorize('create', Product::class);
 
         $request->validate([
             'name' => 'required|max:255',
@@ -122,7 +130,8 @@ class ProductsController extends Controller
      */
     public function show($id)
     {
-        //
+        $product = Product::findOrFail($id);
+        $this->authorize('view', $product);
     }
 
     /**
@@ -133,6 +142,8 @@ class ProductsController extends Controller
      */
     public function edit(Product $product)
     {
+        $this->authorize('update', $product);
+        
         //$product = Product::findOrFail($id);
         $tags = $product->tags()->pluck('name')->toArray();
         $tags = implode(', ', $tags);
@@ -151,6 +162,9 @@ class ProductsController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $product = Product::findOrFail($id);
+        $this->authorize('update', $product);
+
         $request->validate([
             'name' => 'required|max:255',
             'price' => 'numeric',
@@ -159,7 +173,7 @@ class ProductsController extends Controller
             'image' => 'nullable|image',
         ]);
 
-        $product = Product::findOrFail($id);
+        
 
         $data = $request->except(['image', '_token', 'tags']);
 
@@ -204,6 +218,7 @@ class ProductsController extends Controller
     public function destroy($id)
     {
         $product = Product::withTrashed()->findOrFail($id);
+        $this->authorize('delete', $product);
         if ($product->trashed()) {
             $product->forceDelete();
             //Storage::disk('public')->delete($product->image);
@@ -266,6 +281,7 @@ class ProductsController extends Controller
     public function restore(Request $request, $id)
     {
         $product = Product::onlyTrashed()->findOrFail($id);
+        $this->authorize('restore', $product);
         $product->restore();
 
         $message = sprintf('Product %s restored', $product->name);

@@ -69,7 +69,7 @@ class Product extends Model
         /*static::addGlobalScope('quantity', function(Builder $query) {
             $query->where('quantity', '>', 0);
         });*/
-        static::addGlobalScope(new QuantityScope);
+        //static::addGlobalScope(new QuantityScope);
 
         static::forceDeleted(function($product) {
             Storage::disk('public')->delete($product->image);

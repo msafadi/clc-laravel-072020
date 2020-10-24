@@ -15,6 +15,7 @@
                     @endif
 
                     {{ __('You are logged in!') }}
+                    {{ $weather->weather[0]->main }}
                 </div>
             </div>
         </div>

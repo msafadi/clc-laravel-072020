@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -15,6 +16,21 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         //
+
+        /*Gate::before(function($user, $ability) {
+            if ($user->type == 'super-admin') {
+                return true;
+            }
+        });*/
+
+        Gate::define('create-product', function($user) {
+            //
+            return false;
+        });
+
+        Gate::define('delete-product', function($user) {
+            return false;
+        });
     }
 
     /**

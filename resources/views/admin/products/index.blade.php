@@ -4,7 +4,9 @@
     <div class="d-flex justify-content-between mb-5">
         <h1>Products</h1>
         <div>
+            @can('create', App\Product::class)
             <a class="btn btn-outline-dark" href="{{ route('admin.products.create') }}">Create New</a>
+            @endcan
             <a class="btn btn-outline-danger" href="{{ route('admin.products.trash') }}">Trash</a>
         </div>
     </div>
